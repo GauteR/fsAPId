@@ -226,7 +226,9 @@ class DockerVolumeFileHandler:
             raise
 
 # Initialize the file handler
-file_handler = DockerVolumeFileHandler()
+file_handler = DockerVolumeFileHandler(
+    base_path=os.getenv('DOCKER_VOLUMES_PATH', '/var/lib/docker/volumes')
+)
 
 @app.list_tools()
 async def handle_list_tools() -> List[Tool]:

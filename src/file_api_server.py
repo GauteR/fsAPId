@@ -34,7 +34,9 @@ app = FastAPI(
 )
 
 # Initialize the file handler
-file_handler = DockerVolumeFileHandler()
+file_handler = DockerVolumeFileHandler(
+    base_path=os.getenv('DOCKER_VOLUMES_PATH', '/var/lib/docker/volumes')
+)
 
 # Pydantic models for request/response
 class FileWriteRequest(BaseModel):
