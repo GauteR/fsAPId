@@ -12,8 +12,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
-COPY src/ ./src/
+# Copy source code to root level to avoid import issues
+COPY src/file_mcp_server.py .
+COPY src/file_api_server.py .
 COPY config.py .
 COPY start_server.py .
 
