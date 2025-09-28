@@ -175,7 +175,7 @@ The docker-compose setup:
 - ✅ **Mounts volume to `/app/data`** inside the container
 - ✅ **Sets environment variables** for proper configuration
 - ✅ **Includes health checks** for the API server
-- ✅ **Creates local directory** `./docker-volume-data` for volume data
+- ✅ **Creates local directory** `./data` for volume data
 
 ### Using Docker directly
 
