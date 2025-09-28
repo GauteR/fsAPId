@@ -153,11 +153,14 @@ cp env.example .env
 The easiest way to run the servers is with Docker Compose, which sets up a proper Docker volume:
 
 ```bash
-# Start the API server with Docker volume (default)
+# Start both API and MCP servers (default)
 docker-compose up -d
 
+# Start only the API server
+docker-compose up -d file-api-server
+
 # Start only the MCP server
-docker-compose --profile mcp-only up -d
+docker-compose up -d file-mcp-server
 
 # View logs
 docker-compose logs -f
@@ -167,6 +170,7 @@ docker-compose down
 ```
 
 The docker-compose setup:
+- ✅ **Runs both servers by default** - API server and MCP server in parallel
 - ✅ **Creates a Docker volume** (`file-volume`) for persistent file storage
 - ✅ **Mounts volume to `/app/data`** inside the container
 - ✅ **Sets environment variables** for proper configuration
