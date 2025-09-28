@@ -1,4 +1,4 @@
-# fsAPId-fsMCPd
+# Fileserver API for Docker (fsAPId)
 
 A FastAPI REST API and Model Context Protocol (MCP) server for handling file operations on Docker volumes.
 
