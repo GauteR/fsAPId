@@ -132,19 +132,64 @@ The servers handle **all file types** including:
 
 **And any other file type** - automatic MIME type detection
 
+## Configuration
+
+The servers can be configured using environment variables:
+
+- `DOCKER_VOLUMES_PATH` - Path to the Docker volumes directory (default: `/var/lib/docker/volumes`)
+- `LOG_LEVEL` - Logging level (default: `INFO`)
+
+For Docker Compose, copy `env.example` to `.env` and modify as needed:
+
+```bash
+cp env.example .env
+# Edit .env file with your preferred settings
+```
+
 ## Docker Deployment
 
-Build and run with Docker:
+### Using Docker Compose (Recommended)
+
+The easiest way to run the servers is with Docker Compose, which sets up a proper Docker volume:
+
+```bash
+# Start the API server with Docker volume (default)
+docker-compose up -d
+
+# Start only the MCP server
+docker-compose --profile mcp-only up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+The docker-compose setup:
+- ✅ **Creates a Docker volume** (`file-volume`) for persistent file storage
+- ✅ **Mounts volume to `/app/data`** inside the container
+- ✅ **Sets environment variables** for proper configuration
+- ✅ **Includes health checks** for the API server
+- ✅ **Creates local directory** `./docker-volume-data` for volume data
+
+### Using Docker directly
 
 ```bash
 # Build image
 docker build -t file-mcp-server .
 
-# Run API server
-docker run -p 8000:8000 file-mcp-server
+# Run API server with volume
+docker run -p 8000:8000 \
+  -v $(pwd)/docker-volume-data:/app/data \
+  -e DOCKER_VOLUMES_PATH=/app/data \
+  file-mcp-server
 
-# Run MCP server
-docker run file-mcp-server python start_server.py mcp
+# Run MCP server with volume
+docker run \
+  -v $(pwd)/docker-volume-data:/app/data \
+  -e DOCKER_VOLUMES_PATH=/app/data \
+  file-mcp-server python start_server.py mcp
 ```
 
 ## Security
