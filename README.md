@@ -1,6 +1,6 @@
-# Docker Volume File Servers
+# fsAPId-fsMCPd
 
-A Model Context Protocol (MCP) server and FastAPI REST API for handling file operations on Docker volumes.
+A FastAPI REST API and Model Context Protocol (MCP) server for handling file operations on Docker volumes.
 
 ## Features
 
