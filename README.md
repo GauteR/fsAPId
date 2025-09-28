@@ -57,6 +57,17 @@ The docker-compose setup:
 - **Includes health checks** for the API server
 - **Creates local directory** `./data` for volume data
 
+## MCP Server
+
+The MCP server provides the following tools with universal file type support:
+
+- `list_files`: List files and directories (includes MIME types and binary classification)
+- `read_file`: Read contents of any file (auto-detects text vs binary, returns base64 for binary)
+- `write_file`: Write content to any file (auto-detects base64 vs text content)
+- `delete_file`: Delete a file or directory from Docker volumes
+- `create_directory`: Create a directory in Docker volumes
+- `get_file_info`: Get detailed information including MIME type and binary classification
+
 ## REST API
 
 The FastAPI server provides the following endpoints:
@@ -77,17 +88,6 @@ The FastAPI server provides the following endpoints:
 - `GET /` - API information
 - `GET /health` - Health check
 - `GET /stats` - Volume statistics
-
-## MCP Server
-
-The MCP server provides the following tools with universal file type support:
-
-- `list_files`: List files and directories (includes MIME types and binary classification)
-- `read_file`: Read contents of any file (auto-detects text vs binary, returns base64 for binary)
-- `write_file`: Write content to any file (auto-detects base64 vs text content)
-- `delete_file`: Delete a file or directory from Docker volumes
-- `create_directory`: Create a directory in Docker volumes
-- `get_file_info`: Get detailed information including MIME type and binary classification
 
 ### API Documentation
 - Interactive docs: `http://localhost:8000/docs`
