@@ -1,0 +1,11 @@
+# Core MCP server dependencies
+mcp>=1.0.0
+
+# FastAPI and web server dependencies
+fastapi>=0.117.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.10.0
+
+# Testing dependencies
+pytest>=8.0.0
+httpx>=0.28.0
