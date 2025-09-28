@@ -177,25 +177,6 @@ The docker-compose setup:
 - ✅ **Includes health checks** for the API server
 - ✅ **Creates local directory** `./data` for volume data
 
-### Using Docker directly
-
-```bash
-# Build image
-docker build -t file-mcp-server .
-
-# Run API server with volume
-docker run -p 8000:8000 \
-  -v $(pwd)/docker-volume-data:/app/data \
-  -e DOCKER_VOLUMES_PATH=/app/data \
-  file-mcp-server
-
-# Run MCP server with volume
-docker run \
-  -v $(pwd)/docker-volume-data:/app/data \
-  -e DOCKER_VOLUMES_PATH=/app/data \
-  file-mcp-server python start_server.py mcp
-```
-
 ## Security
 
 Both servers include path validation to prevent directory traversal attacks and ensure all operations are contained within the specified Docker volumes directory.
