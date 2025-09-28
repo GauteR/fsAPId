@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # REST API server (default service)
+  file-api-server:
+    build: .
+    container_name: file-api-server
+    ports:
+      - "8000:8000"  # API server port
+    volumes:
+      - file-volume:/app/data  # Mount the Docker volume to /app/data
+    environment:
+      - DOCKER_VOLUMES_PATH=/app/data
+      - LOG_LEVEL=INFO
+    command: ["python", "start_server.py", "api", "--host", "0.0.0.0", "--port", "8000"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MCP server (alternative service)
+  file-mcp-server:
+    build: .
+    container_name: file-mcp-server
+    volumes:
+      - file-volume:/app/data
+    environment:
+      - DOCKER_VOLUMES_PATH=/app/data
+      - LOG_LEVEL=INFO
+    command: ["python", "start_server.py", "mcp"]
+    restart: unless-stopped
+    profiles:
+      - mcp-only
+
+volumes:
+  file-volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/docker-volume-data
