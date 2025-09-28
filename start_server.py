@@ -12,13 +12,13 @@ from pathlib import Path
 
 def run_mcp_server():
     """Run the MCP server."""
-    from src.file_mcp_server import main
+    from file_mcp_server import main
     asyncio.run(main())
 
 def run_api_server(host="0.0.0.0", port=8000, reload=False):
     """Run the FastAPI REST API server."""
     uvicorn.run(
-        "src.file_api_server:app",
+        "file_api_server:app",
         host=host,
         port=port,
         reload=reload,

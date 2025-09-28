@@ -133,6 +133,56 @@ async def list_files(
         logger.error(f"Error listing files in {path}: {e}")
         raise HTTPException(status_code=500, detail="Failed to list files")
 
+@app.get("/files/{file_path:path}/info", response_model=FileInfo)
+async def get_file_info(
+    file_path: str = FastAPIPath(..., description="Path to the file or directory")
+):
+    """Get detailed information about a file or directory."""
+    try:
+        info_data = file_handler.get_file_info(file_path)
+        return FileInfo(
+            name=info_data["name"],
+            path=info_data["path"],
+            type=info_data["type"],
+            size=info_data["size"],
+            modified=info_data["modified"],
+            permissions=info_data["permissions"],
+            created=info_data.get("created"),
+            owner=info_data.get("owner"),
+            group=info_data.get("group"),
+            mime_type=info_data.get("mime_type"),
+            is_binary=info_data.get("is_binary")
+        )
+    
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"File {file_path} not found")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error getting file info for {file_path}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get file info")
+
+@app.get("/files/{file_path:path}/binary")
+async def read_file_binary(
+    file_path: str = FastAPIPath(..., description="Path to the binary file to read")
+):
+    """Read contents of a binary file."""
+    try:
+        binary_data = file_handler.read_file_binary(file_path)
+        return Response(
+            content=binary_data,
+            media_type="application/octet-stream",
+            headers={"Content-Disposition": f"attachment; filename={Path(file_path).name}"}
+        )
+    
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"File {file_path} not found")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error reading binary file {file_path}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to read binary file")
+
 @app.get("/files/{file_path:path}", response_model=Dict[str, Any])
 async def read_file(
     file_path: str = FastAPIPath(..., description="Path to the file to read")
@@ -164,27 +214,6 @@ async def read_file(
     except Exception as e:
         logger.error(f"Error reading file {file_path}: {e}")
         raise HTTPException(status_code=500, detail="Failed to read file")
-
-@app.get("/files/{file_path:path}/binary")
-async def read_file_binary(
-    file_path: str = FastAPIPath(..., description="Path to the binary file to read")
-):
-    """Read contents of a binary file."""
-    try:
-        binary_data = file_handler.read_file_binary(file_path)
-        return Response(
-            content=binary_data,
-            media_type="application/octet-stream",
-            headers={"Content-Disposition": f"attachment; filename={Path(file_path).name}"}
-        )
-    
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"File {file_path} not found")
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"Error reading binary file {file_path}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to read binary file")
 
 @app.post("/files/{file_path:path}/binary")
 async def write_file_binary(
@@ -282,35 +311,6 @@ async def create_directory(
     except Exception as e:
         logger.error(f"Error creating directory {dir_path}: {e}")
         raise HTTPException(status_code=500, detail="Failed to create directory")
-
-@app.get("/files/{file_path:path}/info", response_model=FileInfo)
-async def get_file_info(
-    file_path: str = FastAPIPath(..., description="Path to the file or directory")
-):
-    """Get detailed information about a file or directory."""
-    try:
-        info_data = file_handler.get_file_info(file_path)
-        return FileInfo(
-            name=info_data["name"],
-            path=info_data["path"],
-            type=info_data["type"],
-            size=info_data["size"],
-            modified=info_data["modified"],
-            permissions=info_data["permissions"],
-            created=info_data.get("created"),
-            owner=info_data.get("owner"),
-            group=info_data.get("group"),
-            mime_type=info_data.get("mime_type"),
-            is_binary=info_data.get("is_binary")
-        )
-    
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"File {file_path} not found")
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"Error getting file info for {file_path}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get file info")
 
 @app.get("/stats", response_model=Dict[str, Any])
 async def get_stats():

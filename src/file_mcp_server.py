@@ -23,7 +23,8 @@ from mcp.types import (
     TextContent,
     ImageContent,
     EmbeddedResource,
-    LoggingLevel
+    LoggingLevel,
+    ServerCapabilities
 )
 
 # Configure logging
@@ -39,7 +40,8 @@ class DockerVolumeFileHandler:
     def __init__(self, base_path: str = "/var/lib/docker/volumes"):
         self.base_path = Path(base_path)
         if not self.base_path.exists():
-            logger.warning(f"Base path {base_path} does not exist")
+            logger.warning(f"Base path {base_path} does not exist, creating it")
+            self.base_path.mkdir(parents=True, exist_ok=True)
     
     def _validate_path(self, path: str) -> Path:
         """Validate and normalize a path within Docker volumes."""
@@ -392,19 +394,38 @@ async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> List[TextCon
 
 async def main():
     """Main entry point for the MCP server."""
-    async with stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="file-mcp-server",
-                server_version="1.0.0",
-                capabilities=app.get_capabilities(
-                    notification_options=None,
-                    experimental_capabilities={}
+    logger.info("Starting MCP server...")
+    
+    # Check if we're running in Docker without proper stdio
+    import sys
+    if not sys.stdin.isatty() and not sys.stdout.isatty():
+        logger.info("Detected non-interactive environment, checking stdio availability...")
+    
+    try:
+        logger.info("Setting up stdio server...")
+        async with stdio_server() as (read_stream, write_stream):
+            logger.info("Stdio server established, starting MCP app...")
+            await app.run(
+                read_stream,
+                write_stream,
+                InitializationOptions(
+                    server_name="file-mcp-server",
+                    server_version="1.0.0",
+                    capabilities=ServerCapabilities()
                 )
             )
-        )
+            logger.info("MCP app.run() completed")
+    except Exception as e:
+        logger.error(f"MCP server error: {e}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        # In Docker, we might want to keep the server running even if stdio fails
+        # This allows the container to stay up for debugging
+        logger.info("MCP server failed to start with stdio, keeping container alive for debugging")
+        import time
+        while True:
+            time.sleep(60)
+            logger.info("MCP server container still alive")
 
 if __name__ == "__main__":
     asyncio.run(main())
