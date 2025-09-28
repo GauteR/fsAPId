@@ -12,33 +12,50 @@ A FastAPI REST API and Model Context Protocol (MCP) server for handling file ope
 - **Security**: Path validation to prevent directory traversal attacks
 - **Docker Ready**: Containerized deployment support
 
-## Installation
+## Configuration
 
-1. Install dependencies:
+The servers can be configured using environment variables:
+
+- `DOCKER_VOLUMES_PATH` - Path to the Docker volumes directory (default: `/var/lib/docker/volumes`)
+- `LOG_LEVEL` - Logging level (default: `INFO`)
+
+For Docker Compose, copy `env.example` to `.env` and modify as needed:
+
 ```bash
-pip install -r requirements.txt
+cp env.example .env
+# Edit .env file with your preferred settings
 ```
 
-2. Run the MCP server:
+## Usage
+
+### Using Docker Compose (Recommended)
+
+The easiest way to run the servers is with Docker Compose, which sets up a proper Docker volume:
+
 ```bash
-python start_server.py mcp
+# Start both API and MCP servers (default)
+docker-compose up -d
+
+# Start only the API server
+docker-compose up -d file-api-server
+
+# Start only the MCP server
+docker-compose up -d file-mcp-server
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
 ```
 
-3. Run the REST API server:
-```bash
-python start_server.py api
-```
-
-## MCP Server
-
-The MCP server provides the following tools with universal file type support:
-
-- `list_files`: List files and directories (includes MIME types and binary classification)
-- `read_file`: Read contents of any file (auto-detects text vs binary, returns base64 for binary)
-- `write_file`: Write content to any file (auto-detects base64 vs text content)
-- `delete_file`: Delete a file or directory from Docker volumes
-- `create_directory`: Create a directory in Docker volumes
-- `get_file_info`: Get detailed information including MIME type and binary classification
+The docker-compose setup:
+- **Runs both servers by default** - API server and MCP server in parallel
+- **Creates a Docker volume** (`file-volume`) for persistent file storage
+- **Mounts volume to `/app/data`** inside the container
+- **Sets environment variables** for proper configuration
+- **Includes health checks** for the API server
+- **Creates local directory** `./data` for volume data
 
 ## REST API
 
@@ -60,6 +77,17 @@ The FastAPI server provides the following endpoints:
 - `GET /` - API information
 - `GET /health` - Health check
 - `GET /stats` - Volume statistics
+
+## MCP Server
+
+The MCP server provides the following tools with universal file type support:
+
+- `list_files`: List files and directories (includes MIME types and binary classification)
+- `read_file`: Read contents of any file (auto-detects text vs binary, returns base64 for binary)
+- `write_file`: Write content to any file (auto-detects base64 vs text content)
+- `delete_file`: Delete a file or directory from Docker volumes
+- `create_directory`: Create a directory in Docker volumes
+- `get_file_info`: Get detailed information including MIME type and binary classification
 
 ### API Documentation
 - Interactive docs: `http://localhost:8000/docs`
@@ -131,51 +159,6 @@ The servers handle **all file types** including:
 - RAR (`.rar`) - `application/vnd.rar`
 
 **And any other file type** - automatic MIME type detection
-
-## Configuration
-
-The servers can be configured using environment variables:
-
-- `DOCKER_VOLUMES_PATH` - Path to the Docker volumes directory (default: `/var/lib/docker/volumes`)
-- `LOG_LEVEL` - Logging level (default: `INFO`)
-
-For Docker Compose, copy `env.example` to `.env` and modify as needed:
-
-```bash
-cp env.example .env
-# Edit .env file with your preferred settings
-```
-
-## Docker Deployment
-
-### Using Docker Compose (Recommended)
-
-The easiest way to run the servers is with Docker Compose, which sets up a proper Docker volume:
-
-```bash
-# Start both API and MCP servers (default)
-docker-compose up -d
-
-# Start only the API server
-docker-compose up -d file-api-server
-
-# Start only the MCP server
-docker-compose up -d file-mcp-server
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-The docker-compose setup:
-- ✅ **Runs both servers by default** - API server and MCP server in parallel
-- ✅ **Creates a Docker volume** (`file-volume`) for persistent file storage
-- ✅ **Mounts volume to `/app/data`** inside the container
-- ✅ **Sets environment variables** for proper configuration
-- ✅ **Includes health checks** for the API server
-- ✅ **Creates local directory** `./data` for volume data
 
 ## Security
 
